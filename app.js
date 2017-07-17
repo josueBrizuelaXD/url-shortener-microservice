@@ -29,6 +29,7 @@ app.get("/", function(req, res) {
 
 app.get("/new/:longurl(*)", function(req, res) {
 	const longUrl = req.params.longurl;
+	const reg = /([a-fA-F]|\d)([a-fA-F]|\d)([a-fA-F]|\d)([a-fA-F]|\d)/;
 	
 	//check if url is a valid url
 	if (validUrl.isUri(longUrl)) {
@@ -39,6 +40,11 @@ app.get("/new/:longurl(*)", function(req, res) {
 			if (result) {
 				//found the longurl
 				console.log("found");
+				res.send({ 
+				longUrl: result.longUrl,
+				shortUrl: result.shortUrl	
+				})
+				
 			} else {
 				//no longurl in database, then create an entry
 				console.log("not found");
@@ -51,8 +57,26 @@ app.get("/new/:longurl(*)", function(req, res) {
 				});
 			}
 		});
+		//check if the user is entering a short url
+	} else if (reg.test(longUrl)) {
+		//if it is a valid short url, look if we have a long url associated with it
+		urlCollection.findOne({shortUrl:longUrl},
+		function(err, result) {
+			
+			//if we have an already url save with that hex number redirect the user to the longurl saved.
+			if (result) {
+				console.log("found short url");
+				res.redirect(result.longUrl);
+			} else {
+				//else tell user to enter a valid url
+				res.send("Enter valid url");
+			}
+			
+		});
+		
+		
 	} else {
-		console.log("url not valid: " + longUrl);
+		res.send("enter a valid url");
 	}
 });
 
