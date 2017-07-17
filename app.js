@@ -27,7 +27,7 @@ db.once('open', function() {
 	console.log("we connected to mongodb");
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static("public"));
 
 
 app.get("/", function(req, res) {
@@ -49,10 +49,7 @@ app.get("/new/:longurl(*)", function(req, res) {
 			if (result) {
 				//found the longurl
 				console.log("found");
-				res.send({ 
-				longUrl: result.longUrl,
-				shortUrl: result.shortUrl	
-				})
+				res.send({original_url: longUrl, shortUrl: shortUrl});
 				
 			} else {
 				//no longurl in database, then create an entry
@@ -62,7 +59,7 @@ app.get("/new/:longurl(*)", function(req, res) {
 				newUrl.longUrl = longUrl;
 				newUrl.shortUrl = shortUrl;
 				newUrl.save(function(err, result) {
-					res.send({longURl: longUrl, shortUrl: shortUrl});
+					res.send({original_url: longUrl, shortUrl: shortUrl});
 				});
 			}
 		});
