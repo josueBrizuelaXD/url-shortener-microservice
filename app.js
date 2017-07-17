@@ -1,9 +1,13 @@
 var express = require('express');
 var path = require('path');
+var dotenv = require("dotenv").config();
 var crypto = require("crypto");
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var validUrl = require("valid-url");
+
+
+
 var collectionURLSchema = new Schema({
 	longUrl: String,
 	shortUrl:String
@@ -11,7 +15,9 @@ var collectionURLSchema = new Schema({
 
 var urlCollection = mongoose.model("urlCollection", collectionURLSchema);
 
-mongoose.connect("mongodb://localhost/mydb");
+
+const mgURl = process.env.MONGOLAB_URL;
+mongoose.connect(mgURl);
 var app = express();
 
 var db = mongoose.connection;
@@ -23,10 +29,13 @@ db.once('open', function() {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.get("/", function(req, res) {
+
 	res.sendFile(path.join(__dirname, "views/index.html"));
 })
 
+//hanlde the url entered
 app.get("/new/:longurl(*)", function(req, res) {
 	const longUrl = req.params.longurl;
 	const reg = /([a-fA-F]|\d)([a-fA-F]|\d)([a-fA-F]|\d)([a-fA-F]|\d)/;
@@ -76,7 +85,7 @@ app.get("/new/:longurl(*)", function(req, res) {
 		
 		
 	} else {
-		res.send("enter a valid url");
+		res.send("Enter a valid url");
 	}
 });
 
